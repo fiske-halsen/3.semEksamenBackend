@@ -2,6 +2,7 @@ package rest;
 
 import dto.CreateNewDogDTO;
 import dto.DogDTO;
+import dto.SearchDTO;
 import entities.Breed;
 import entities.Dog;
 import entities.Role;
@@ -25,6 +26,7 @@ import org.glassfish.jersey.server.ResourceConfig;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -244,4 +246,45 @@ public class UserResourceTest {
 
     }
 
+    
+    @Test
+    public void testGetAllSearches() throws Exception {
+        login("admin", "admin");
+        given()
+                .contentType("application/json")
+                .header("x-access-token", securityToken)
+                .when()
+                .get("/info/totalsearches/").then()
+                .statusCode(HttpStatus.OK_200.getStatusCode())
+                .body("count", equalTo(2));
+    }
+    
+    @Test
+    public void testGetAllSearchesByBreed() throws Exception {
+        login("admin", "admin");
+        given()
+                .contentType("application/json")
+                .header("x-access-token", securityToken)
+                .when()
+                .get("/info/totalsearches/" + b1.getBreedName()).then()
+                .statusCode(HttpStatus.OK_200.getStatusCode())
+                .body("count", equalTo(1));
+    }
+    
+   
+    @Test
+    public void testAddASearch() throws Exception {
+        given()
+                .contentType("application/json")
+                .body(new SearchDTO("DummyName", "DummyInfo"))
+                .when()
+                .post("/info/addsearch/").then()
+                .statusCode(HttpStatus.OK_200.getStatusCode())
+                .body("name", equalTo("DummyName"));
+
+    }
+    
+    
+    
+    
 }

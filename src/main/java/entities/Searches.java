@@ -28,8 +28,6 @@ public class Searches implements Serializable {
     @ManyToMany(mappedBy="searches", cascade=CascadeType.PERSIST)
     private List<Breed> breeds;
 
-   
-
     public Searches() {
         this.searchDate = new Date();
         this.breeds = new ArrayList();
