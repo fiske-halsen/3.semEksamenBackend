@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import dto.CreateNewDogDTO;
 import dto.DogDTO;
 import dto.DogsDTO;
+import dto.SearchDTO;
 import entities.User;
 import errorhandling.DogNotFoundException;
 import errorhandling.UserNotFoundException;
@@ -34,7 +35,6 @@ import javax.ws.rs.core.SecurityContext;
 import utils.EMF_Creator;
 import utils.SetupTestUsers;
 
-
 @Path("info")
 public class UserResource {
 
@@ -54,7 +54,6 @@ public class UserResource {
     public String getInfoForAll() {
         return "{\"msg\":\"Hello anonymous\"}";
     }
-
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -105,7 +104,7 @@ public class UserResource {
         cachedResponse = dog;
         return dog;
     }
-    
+
     @Path("adddog")
     @RolesAllowed("user")
     @POST
@@ -116,16 +115,15 @@ public class UserResource {
         CreateNewDogDTO createdDog = FACADE.addDogToAUser(dog);
         return GSON.toJson(createdDog);
     }
-    
+
     @Path("alldogs/{username}")
     @GET
     @Produces({MediaType.APPLICATION_JSON})
     public String getAllDogsByUser(@PathParam("username") String userName) throws UserNotFoundException {
-       DogsDTO dogs = FACADE.getAllDogsForUser(userName);
+        DogsDTO dogs = FACADE.getAllDogsForUser(userName);
         return GSON.toJson(dogs);
     }
-    
-    
+
     @Path("delete/{id}")
     @RolesAllowed("user")
     @DELETE
@@ -135,7 +133,7 @@ public class UserResource {
         DogDTO deletedDog = FACADE.deleteDog(id);
         return GSON.toJson(deletedDog);
     }
-    
+
     @Path("edit")
     @RolesAllowed("user")
     @PUT
@@ -146,4 +144,33 @@ public class UserResource {
         DogDTO editedDog = FACADE.editDog(dog);
         return GSON.toJson(editedDog);
     }
+
+    @Path("totalsearches")
+    @RolesAllowed("admin")
+    @GET
+    @Produces({MediaType.APPLICATION_JSON})
+    public String getAllSearches() {
+        long count = FACADE.getTheTotalNumberOfRequests();
+        return "{\"count\":" + count + "}";
+    }
+
+    @Path("totalsearches/{breed}")
+    @RolesAllowed("admin")
+    @GET
+    @Produces({MediaType.APPLICATION_JSON})
+    public String getAllSearchesByBreed(@PathParam("breed") String breed) {
+        long count = FACADE.getTheTotalNumberOfRequestsForBreed(breed);
+        return "{\"count\":" + count + "}";
+    }
+
+    @Path("addsearch")
+    @POST
+    @Produces({MediaType.APPLICATION_JSON})
+    @Consumes({MediaType.APPLICATION_JSON})
+    public String addSearch(String searchDTO) throws UserNotFoundException {
+        SearchDTO search = GSON.fromJson(searchDTO, SearchDTO.class);
+        SearchDTO searchAdded = FACADE.addSearch(search);
+        return GSON.toJson(searchAdded);
+    }
+
 }

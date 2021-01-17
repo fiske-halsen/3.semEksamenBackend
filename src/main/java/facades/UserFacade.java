@@ -3,8 +3,11 @@ package facades;
 import dto.CreateNewDogDTO;
 import dto.DogDTO;
 import dto.DogsDTO;
+import dto.SearchDTO;
 import dto.UsersDTO;
+import entities.Breed;
 import entities.Dog;
+import entities.Searches;
 import entities.User;
 import errorhandling.DogNotFoundException;
 import errorhandling.UserNotFoundException;
@@ -111,7 +114,7 @@ public class UserFacade implements UserInterface {
 
     @Override
     public DogDTO editDog(DogDTO dogDTO) throws DogNotFoundException {
-         EntityManager em = emf.createEntityManager();
+        EntityManager em = emf.createEntityManager();
         Dog dog;
         try {
            dog = em.find(Dog.class, dogDTO.id);
@@ -133,27 +136,77 @@ public class UserFacade implements UserInterface {
         }
     }
     
+    @Override
+    public long getTheTotalNumberOfRequests() {
+        EntityManager em = emf.createEntityManager();
+        long count = 0;
+        try {
+            Query query = em.createQuery("SELECT COUNT(s) FROM Searches s");
+            count = (long) query.getSingleResult();
+             return count;
+        } finally {
+            em.close();
+        }
+    }
 
+    @Override
+    public long getTheTotalNumberOfRequestsForBreed(String breed) {
+         EntityManager em = emf.createEntityManager();
+        long count = 0;
+        try {
+            Query query = em.createQuery("SELECT COUNT(s) FROM Searches s JOIN s.breeds b WHERE b.breedName=:breed ");
+            query.setParameter("breed", breed);
+            count = (long) query.getSingleResult();
+             return count;
+        } finally {
+            em.close();
+        }
+    }
+    
+    
+    @Override
+    public SearchDTO addSearch(SearchDTO searchDTO) {
+       EntityManager em = emf.createEntityManager();
+       Searches search;
+       Breed breed;
+        try {
+           
+            search = new Searches();
+            
+            breed = em.find(Breed.class, searchDTO.name);
+            
+            if(breed == null){
+             breed = new Breed(searchDTO.name, searchDTO.info);
+            }
+            
+            search.addBreed(breed);
+            
+            em.getTransaction().begin();
+            
+            em.persist(search);
+            
+            em.getTransaction().commit();
+            
+            System.out.println();
+            
+             return new SearchDTO(breed.getBreedName(), breed.getInfo());
+        } finally {
+            em.close();
+        }
+    }
+    
+    
     public static void main(String[] args) throws UserNotFoundException, DogNotFoundException {
         EntityManagerFactory EMF = EMF_Creator.createEntityManagerFactory();
         UserFacade userFacade = UserFacade.getUserFacade(EMF);
         EntityManager em = emf.createEntityManager();
 
-        long id = 9;
         
-        Dog dog = em.find(Dog.class, id);
-        System.out.println(dog.getName());
         
-        dog.setName("HighIqWzPlay");
         
-       DogDTO dogDTO = userFacade.editDog(new DogDTO(dog));
+        
        
        
-        System.out.println(dogDTO.name);
-       
-
     }
-
-  
 
 }

@@ -3,6 +3,7 @@ package facades;
 import dto.CreateNewDogDTO;
 import dto.DogDTO;
 import dto.DogsDTO;
+import dto.SearchDTO;
 import entities.Breed;
 import entities.Dog;
 import utils.EMF_Creator;
@@ -139,11 +140,31 @@ public class UserFacadeTest {
         DogDTO dogs = facade.deleteDog(d1.getId());
         assertEquals(d1.getName(), dogs.name, "Expects the name of 'Bob'");
     }
-    
+
     @Test
     public void testEditDog() throws DogNotFoundException {
         d1.setName("EditedNavn");
         DogDTO dog = facade.editDog(new DogDTO(d1));
         assertEquals(d1.getName(), dog.name, "Expects a new name 'EditedNavn'");
+    }
+
+    @Test
+    public void testGetTheTotalNumberOfRequests() {
+        long count = facade.getTheTotalNumberOfRequests();
+        long exp = 2;
+        assertEquals(exp, count, "Expects two searches'");
+    }
+
+    @Test
+    public void testGetTheTotalNumberOfRequestsForBreed() {
+        long count = facade.getTheTotalNumberOfRequestsForBreed("Husky");
+        long exp = 1;
+        assertEquals(exp, count, "Expects one search for Husky'");
+    }
+
+    @Test
+    public void testAddSearch() {
+        SearchDTO searchDTO = facade.addSearch(new SearchDTO("Engelsk bulldog", "hyggelig"));
+        assertEquals("Engelsk bulldog", searchDTO.name, "Expects a new search of the engelsk bull dog'");
     }
 }
