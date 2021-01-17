@@ -72,6 +72,7 @@ public class UserResourceTest {
         // Also, either delete this file, when users are created or rename and add to .gitignore
         // Whatever you do DO NOT COMMIT and PUSH with the real passwords
         try {
+
             u1 = new User("Phillip", "Masterrx8");
             u2 = new User("Sebbergo", "highiq");
             admin = new User("admin", "admin");
@@ -85,6 +86,14 @@ public class UserResourceTest {
             b2 = new Breed("Fransk bulldog", "langsom");
 
             em.getTransaction().begin();
+            em.createNativeQuery("DELETE FROM BREED_SEARCHES").executeUpdate();
+            em.createNativeQuery("DELETE FROM SEARCHES").executeUpdate();
+            em.createNativeQuery("DELETE FROM BREED").executeUpdate();
+            em.createNativeQuery("DELETE FROM DOG").executeUpdate();
+            em.createNativeQuery("DELETE FROM user_roles").executeUpdate();
+            em.createNativeQuery("DELETE FROM roles").executeUpdate();
+            em.createNativeQuery("DELETE FROM users").executeUpdate();
+
             u1.addRole(userRole);
             u2.addRole(userRole);
             admin.addRole(adminRole);
@@ -132,9 +141,7 @@ public class UserResourceTest {
 //            em.close();
 //        }
 //    }
-    
-    
-     private static void login(String role, String password) {
+    private static void login(String role, String password) {
         String json = String.format("{username: \"%s\", password: \"%s\"}", role, password);
         securityToken = given()
                 .contentType("application/json")
@@ -143,10 +150,11 @@ public class UserResourceTest {
                 .when().post("/login")
                 .then()
                 .extract().path("token");
-        
-         System.out.println(securityToken);
+
+        System.out.println(securityToken);
         //System.out.println("TOKEN ---> " + securityToken);
     }
+
     @Order(3)
     @Test
     public void testServerIsUp() {
@@ -164,9 +172,9 @@ public class UserResourceTest {
                 .statusCode(HttpStatus.OK_200.getStatusCode())
                 .body("msg", equalTo("Hello anonymous"));
     }
-    
+
     @Order(1)
-      @Test
+    @Test
     public void testAddADogToAUser() throws Exception {
         login("Phillip", "Masterrx8");
         System.out.println(securityToken);
@@ -177,7 +185,7 @@ public class UserResourceTest {
                 .when()
                 .post("/info/adddog").then()
                 .statusCode(HttpStatus.OK_200.getStatusCode());
-    
-}
-    
+
+    }
+
 }

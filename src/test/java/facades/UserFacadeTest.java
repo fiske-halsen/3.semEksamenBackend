@@ -47,6 +47,11 @@ public class UserFacadeTest {
     // Also, either delete this file, when users are created or rename and add to .gitignore
     // Whatever you do DO NOT COMMIT and PUSH with the real passwords
     try{
+        
+        
+        
+        
+        
      u1 = new User("Phillip", "Masterrx8");
      u2 = new User("Sebbergo", "highiq");
      admin = new User("admin", "admin");
@@ -61,6 +66,13 @@ public class UserFacadeTest {
     
     
     em.getTransaction().begin();
+        em.createNativeQuery("DELETE FROM BREED_SEARCHES").executeUpdate();
+            em.createNativeQuery("DELETE FROM SEARCHES").executeUpdate();
+            em.createNativeQuery("DELETE FROM BREED").executeUpdate();
+            em.createNativeQuery("DELETE FROM DOG").executeUpdate();
+            em.createNativeQuery("DELETE FROM user_roles").executeUpdate();
+            em.createNativeQuery("DELETE FROM roles").executeUpdate();
+            em.createNativeQuery("DELETE FROM users").executeUpdate();
     u1.addRole(userRole);
     u2.addRole(userRole);
     admin.addRole(adminRole);

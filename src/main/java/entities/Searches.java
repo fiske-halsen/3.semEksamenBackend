@@ -40,11 +40,8 @@ public class Searches implements Serializable {
     }
 
     public void addBreed(Breed breed) {
-        System.out.println(breed.getBreedName() + "---------------------------------------");
         if(breed != null){
            this.breeds.add(breed);
-           
-            System.out.println("Crasher den?");
            breed.getSearches().add(this);
         }
     }
