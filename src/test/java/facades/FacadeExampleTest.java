@@ -1,7 +1,7 @@
 package facades;
 
 import utils.EMF_Creator;
-import entities.RenameMe;
+
 import entities.Role;
 import entities.User;
 import javax.persistence.EntityManager;

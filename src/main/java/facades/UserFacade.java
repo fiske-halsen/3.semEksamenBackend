@@ -4,6 +4,7 @@ import entities.User;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import security.errorhandling.AuthenticationException;
+import utils.EMF_Creator;
 
 /**
  * @author lam@cphbusiness.dk
@@ -42,5 +43,19 @@ public class UserFacade {
         }
         return user;
     }
-
+    
+    
+    
+    public static void main(String[] args) {
+        EntityManagerFactory EMF = EMF_Creator.createEntityManagerFactory();
+        UserFacade userFacade = UserFacade.getUserFacade(EMF);
+        EntityManager em = emf.createEntityManager();
+       
+        utils.SetupTestUsers.setUpUsers();
+        
+        
+        
+        
+        
+    }
 }
