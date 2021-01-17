@@ -10,6 +10,7 @@ import utils.EMF_Creator;
 import entities.Role;
 import entities.Searches;
 import entities.User;
+import errorhandling.DogNotFoundException;
 import errorhandling.UserNotFoundException;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -43,6 +44,18 @@ public class UserFacadeTest {
     public static void setUpClass() {
         emf = EMF_Creator.createEntityManagerFactoryForTest();
         facade = UserFacade.getUserFacade(emf);
+
+    }
+
+    @AfterAll
+    public static void tearDownClass() {
+//        Clean up database after test is done or use a persistence unit with drop-and-create to start up clean on every test
+    }
+
+    // Setup the DataBase in a known state BEFORE EACH TEST
+    //TODO -- Make sure to change the code below to use YOUR OWN entity class
+    @BeforeEach
+    public void setUp() {
         EntityManager em = emf.createEntityManager();
 
         // IMPORTAAAAAAAAAANT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -90,17 +103,6 @@ public class UserFacadeTest {
         } finally {
             em.close();
         }
-    }
-
-    @AfterAll
-    public static void tearDownClass() {
-//        Clean up database after test is done or use a persistence unit with drop-and-create to start up clean on every test
-    }
-
-    // Setup the DataBase in a known state BEFORE EACH TEST
-    //TODO -- Make sure to change the code below to use YOUR OWN entity class
-    @BeforeEach
-    public void setUp() {
 
     }
 
@@ -109,34 +111,39 @@ public class UserFacadeTest {
 //        Remove any data after each test was run
     }
 
-    
     @Test
-    @Order(3)
     public void testVerifyUser() throws AuthenticationException {
         User user = facade.getVeryfiedUser("Phillip", "Masterrx8");
         assertEquals("Phillip", u1.getUserName(), "Expected username is 'Phillip'");
     }
 
-    
     @Test
-    @Order(2)
     public void testAddDogToUser() throws UserNotFoundException {
         CreateNewDogDTO dogDTO = facade.addDogToAUser(new CreateNewDogDTO(u2.getUserName(), "Garfield", "05/03/2015", "Doven", "Saint berner"));
         String expDogName = "Garfield";
         assertEquals(expDogName, dogDTO.name, "Expects the name Garfield");
     }
 
-    
     @Test
-    @Order(1)
     public void testGetDogsByUser() throws UserNotFoundException {
         DogsDTO dogs = facade.getAllDogsForUser(u1.getUserName());
         DogDTO dog1 = new DogDTO(d1);
-        
 
         assertEquals(1, dogs.dogs.size(), "Expects one dogs for this user");
         assertThat(dogs.dogs, containsInAnyOrder(dog1));
 
     }
 
+    @Test
+    public void testDeleteDog() throws DogNotFoundException {
+        DogDTO dogs = facade.deleteDog(d1.getId());
+        assertEquals(d1.getName(), dogs.name, "Expects the name of 'Bob'");
+    }
+    
+    @Test
+    public void testEditDog() throws DogNotFoundException {
+        d1.setName("EditedNavn");
+        DogDTO dog = facade.editDog(new DogDTO(d1));
+        assertEquals(d1.getName(), dog.name, "Expects a new name 'EditedNavn'");
+    }
 }

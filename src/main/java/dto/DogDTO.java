@@ -4,13 +4,14 @@ import entities.Dog;
 import java.util.Objects;
 
 public class DogDTO {
-
+    public long id;
     public String name;
     public String dateOfBirth;
     public String info;
     public String breed;
 
     public DogDTO(Dog dog) {
+        this.id = dog.getId();
         this.name = dog.getName();
         this.dateOfBirth = dog.getDateOfBirth();
         this.info = dog.getInfo();

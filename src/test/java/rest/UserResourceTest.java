@@ -75,6 +75,17 @@ public class UserResourceTest {
         // CHANGE the three passwords below, before you uncomment and execute the code below
         // Also, either delete this file, when users are created or rename and add to .gitignore
         // Whatever you do DO NOT COMMIT and PUSH with the real passwords
+    }
+
+    @BeforeEach
+    public void setUp() {
+        EntityManager em = emf.createEntityManager();
+
+        // IMPORTAAAAAAAAAANT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        // This breaks one of the MOST fundamental security rules in that it ships with default users and passwords
+        // CHANGE the three passwords below, before you uncomment and execute the code below
+        // Also, either delete this file, when users are created or rename and add to .gitignore
+        // Whatever you do DO NOT COMMIT and PUSH with the real passwords
         try {
 
             u1 = new User("Phillip", "Masterrx8");
@@ -97,7 +108,6 @@ public class UserResourceTest {
             em.createNativeQuery("DELETE FROM user_roles").executeUpdate();
             em.createNativeQuery("DELETE FROM roles").executeUpdate();
             em.createNativeQuery("DELETE FROM users").executeUpdate();
-
             u1.addRole(userRole);
             u2.addRole(userRole);
             admin.addRole(adminRole);
@@ -155,18 +165,15 @@ public class UserResourceTest {
                 .then()
                 .extract().path("token");
 
-        
         //System.out.println("TOKEN ---> " + securityToken);
     }
 
-    @Order(3)
     @Test
     public void testServerIsUp() {
         given().when().get("/info").then().statusCode(200);
     }
 
     //This test assumes the database contains two rows
-    @Order(2)
     @Test
     public void testDummyMsg() throws Exception {
         given()
@@ -177,11 +184,10 @@ public class UserResourceTest {
                 .body("msg", equalTo("Hello anonymous"));
     }
 
-    @Order(1)
     @Test
     public void testAddADogToAUser() throws Exception {
         login("Phillip", "Masterrx8");
-        
+
         given()
                 .contentType("application/json")
                 .body(new CreateNewDogDTO("Phillip", "Ole", "05/02/2020", "Meget sulten", "Golden"))
@@ -191,8 +197,7 @@ public class UserResourceTest {
                 .statusCode(HttpStatus.OK_200.getStatusCode());
 
     }
-    
-    @Order(4)
+
     @Test
     public void testGetAllDogsByUser() throws Exception {
         List<DogDTO> dogsDTO;
@@ -204,19 +209,39 @@ public class UserResourceTest {
                 .then()
                 .extract().body().jsonPath().getList("dogs", DogDTO.class);
 
-      DogDTO dogDTO = new DogDTO(d1);
+        DogDTO dogDTO = new DogDTO(d1);
 
         assertThat(dogsDTO, containsInAnyOrder(dogDTO));
-        
-        
+    }
+
+    @Test
+    public void testDeleteDog() throws Exception {
+        login("Phillip", "Masterrx8");
+
+        given()
+                .contentType("application/json")
+                .header("x-access-token", securityToken)
+                .when()
+                .delete("/info/delete/" + d1.getId()).then()
+                .statusCode(HttpStatus.OK_200.getStatusCode());
 
     }
-    
-    
-    
-    
-    
-    
-    
+
+    @Test
+    public void testEditDog() throws Exception {
+        login("Phillip", "Masterrx8");
+        
+        d1.setName("EditedName");
+        
+        given()
+                .contentType("application/json")
+                .body(new DogDTO(d1))
+                .header("x-access-token", securityToken)
+                .when()
+                .put("/info/edit").then()
+                .statusCode(HttpStatus.OK_200.getStatusCode())
+                .body("name", equalTo("EditedName"));
+
+    }
 
 }
