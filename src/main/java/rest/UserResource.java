@@ -2,7 +2,9 @@ package rest;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import dto.CreateNewDogDTO;
 import entities.User;
+import errorhandling.UserNotFoundException;
 import facades.UserFacade;
 import java.io.IOException;
 import java.util.List;
@@ -18,6 +20,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.Produces;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.MediaType;
@@ -46,21 +49,6 @@ public class UserResource {
         return "{\"msg\":\"Hello anonymous\"}";
     }
 
-    //Just to verify if the database is setup
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    @Path("all")
-    public String allUsers() {
-
-        EntityManager em = EMF.createEntityManager();
-        try {
-            TypedQuery<User> query = em.createQuery("select u from User u", entities.User.class);
-            List<User> users = query.getResultList();
-            return "[" + users.size() + "]";
-        } finally {
-            em.close();
-        }
-    }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -83,7 +71,7 @@ public class UserResource {
     @Path("cached")
     @GET
     @Produces({MediaType.APPLICATION_JSON})
-    public String getStarWarsCached() throws InterruptedException, ExecutionException, TimeoutException {
+    public String getCached() throws InterruptedException, ExecutionException, TimeoutException {
         return cachedResponse;
     }
 
@@ -111,4 +99,18 @@ public class UserResource {
         cachedResponse = dog;
         return dog;
     }
+    
+    @Path("adddog")
+    @RolesAllowed("user")
+    @POST
+    @Produces({MediaType.APPLICATION_JSON})
+    public String addDogToUser(String dogDTO) throws InterruptedException, ExecutionException, TimeoutException, IOException, UserNotFoundException {
+        CreateNewDogDTO dog = GSON.fromJson(dogDTO, CreateNewDogDTO.class);
+        CreateNewDogDTO createdDog = FACADE.addDogToAUser(dog);
+        return GSON.toJson(createdDog);
+    }
+    
+    
+    
+    
 }

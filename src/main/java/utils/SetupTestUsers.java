@@ -35,6 +35,8 @@ public class SetupTestUsers {
     Breed b1 = new Breed("Husky", "Meget energi");
     Breed b2 = new Breed ("Fransk bulldog", "langsom");
     
+    
+    
     em.getTransaction().begin();
     
     u1.addRole(userRole);
