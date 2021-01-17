@@ -3,8 +3,10 @@ package rest;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import dto.CreateNewDogDTO;
+import dto.DogDTO;
 import dto.DogsDTO;
 import entities.User;
+import errorhandling.DogNotFoundException;
 import errorhandling.UserNotFoundException;
 import facades.UserFacade;
 import java.io.IOException;
@@ -17,11 +19,14 @@ import javax.annotation.security.RolesAllowed;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.TypedQuery;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.Produces;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.MediaType;
@@ -105,6 +110,7 @@ public class UserResource {
     @RolesAllowed("user")
     @POST
     @Produces({MediaType.APPLICATION_JSON})
+    @Consumes({MediaType.APPLICATION_JSON})
     public String addDogToUser(String dogDTO) throws UserNotFoundException {
         CreateNewDogDTO dog = GSON.fromJson(dogDTO, CreateNewDogDTO.class);
         CreateNewDogDTO createdDog = FACADE.addDogToAUser(dog);
@@ -117,5 +123,27 @@ public class UserResource {
     public String getAllDogsByUser(@PathParam("username") String userName) throws UserNotFoundException {
        DogsDTO dogs = FACADE.getAllDogsForUser(userName);
         return GSON.toJson(dogs);
+    }
+    
+    
+    @Path("delete/{id}")
+    @RolesAllowed("user")
+    @DELETE
+    @Produces({MediaType.APPLICATION_JSON})
+    @Consumes({MediaType.APPLICATION_JSON})
+    public String deleteDog(@PathParam("id") long id) throws DogNotFoundException {
+        DogDTO deletedDog = FACADE.deleteDog(id);
+        return GSON.toJson(deletedDog);
+    }
+    
+    @Path("edit")
+    @RolesAllowed("user")
+    @PUT
+    @Produces({MediaType.APPLICATION_JSON})
+    @Consumes({MediaType.APPLICATION_JSON})
+    public String editDog(String dogDTO) throws DogNotFoundException {
+        DogDTO dog = GSON.fromJson(dogDTO, DogDTO.class);
+        DogDTO editedDog = FACADE.editDog(dog);
+        return GSON.toJson(editedDog);
     }
 }

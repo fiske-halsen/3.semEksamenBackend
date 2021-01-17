@@ -1,10 +1,12 @@
 package facades;
 
 import dto.CreateNewDogDTO;
+import dto.DogDTO;
 import dto.DogsDTO;
 import dto.UsersDTO;
 import entities.Dog;
 import entities.User;
+import errorhandling.DogNotFoundException;
 import errorhandling.UserNotFoundException;
 import java.util.List;
 import javax.persistence.EntityManager;
@@ -88,15 +90,70 @@ public class UserFacade implements UserInterface {
         }
 
     }
+    
+    @Override
+    public DogDTO deleteDog(long dogId) throws DogNotFoundException {
+        EntityManager em = emf.createEntityManager();
+        Dog dog;
+        try {
+           dog = em.find(Dog.class, dogId);
+            if (dog == null) {
+                throw new DogNotFoundException("Username does not exist");
+            }
+            em.getTransaction().begin();
+            em.remove(dog);
+            em.getTransaction().commit();
+            return new DogDTO(dog);
+        } finally {
+            em.close();
+        }
+    }
 
-    public static void main(String[] args) throws UserNotFoundException {
+    @Override
+    public DogDTO editDog(DogDTO dogDTO) throws DogNotFoundException {
+         EntityManager em = emf.createEntityManager();
+        Dog dog;
+        try {
+           dog = em.find(Dog.class, dogDTO.id);
+            if (dog == null) {
+                throw new DogNotFoundException("Username does not exist");
+            }
+            
+            dog.setName(dogDTO.name);
+            dog.setDateOfBirth(dogDTO.dateOfBirth);
+            dog.setInfo(dogDTO.info);
+            dog.setBreed(dogDTO.breed);
+            
+            em.getTransaction().begin();
+            em.merge(dog);
+            em.getTransaction().commit();
+            return new DogDTO(dog);
+        } finally {
+            em.close();
+        }
+    }
+    
+
+    public static void main(String[] args) throws UserNotFoundException, DogNotFoundException {
         EntityManagerFactory EMF = EMF_Creator.createEntityManagerFactory();
         UserFacade userFacade = UserFacade.getUserFacade(EMF);
         EntityManager em = emf.createEntityManager();
 
-       DogsDTO dogs = userFacade.getAllDogsForUser("Phillip");
+        long id = 9;
+        
+        Dog dog = em.find(Dog.class, id);
+        System.out.println(dog.getName());
+        
+        dog.setName("HighIqWzPlay");
+        
+       DogDTO dogDTO = userFacade.editDog(new DogDTO(dog));
+       
+       
+        System.out.println(dogDTO.name);
        
 
     }
+
+  
 
 }
