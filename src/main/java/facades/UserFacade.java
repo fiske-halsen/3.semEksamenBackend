@@ -1,11 +1,15 @@
 package facades;
 
 import dto.CreateNewDogDTO;
+import dto.DogsDTO;
+import dto.UsersDTO;
 import entities.Dog;
 import entities.User;
 import errorhandling.UserNotFoundException;
+import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.Query;
 import security.errorhandling.AuthenticationException;
 import utils.EMF_Creator;
 import utils.UserInterface;
@@ -66,15 +70,32 @@ public class UserFacade implements UserInterface {
         return new CreateNewDogDTO(dog);
     }
 
+    @Override
+    public DogsDTO getAllDogsForUser(String username) throws UserNotFoundException {
+        EntityManager em = emf.createEntityManager();
+        User user;
+        try {
+            user = em.find(User.class, username);
+            if (user == null) {
+                throw new UserNotFoundException("Username does not exist");
+            }
+            Query query = em.createQuery("SELECT d FROM Dog d JOIN d.user u WHERE u.userName =:username", Dog.class);
+            query.setParameter("username", username);
+            List<Dog> dogs = query.getResultList();
+            return new DogsDTO(dogs);
+        } finally {
+            em.close();
+        }
+
+    }
+
     public static void main(String[] args) throws UserNotFoundException {
         EntityManagerFactory EMF = EMF_Creator.createEntityManagerFactory();
         UserFacade userFacade = UserFacade.getUserFacade(EMF);
         EntityManager em = emf.createEntityManager();
 
+       DogsDTO dogs = userFacade.getAllDogsForUser("Phillip");
        
-        
-        
-        userFacade.addDogToAUser(new CreateNewDogDTO("Phillip", "Ole", "07/05/2010", "Ekstrem intelligent", "Puddel"));
 
     }
 

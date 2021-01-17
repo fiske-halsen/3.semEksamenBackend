@@ -1,6 +1,7 @@
 package rest;
 
 import dto.CreateNewDogDTO;
+import dto.DogDTO;
 import entities.Breed;
 import entities.Dog;
 import entities.Role;
@@ -13,6 +14,7 @@ import static io.restassured.RestAssured.given;
 import io.restassured.http.ContentType;
 import io.restassured.parsing.Parser;
 import java.net.URI;
+import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.ws.rs.core.UriBuilder;
@@ -20,6 +22,8 @@ import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.grizzly.http.util.HttpStatus;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -98,7 +102,7 @@ public class UserResourceTest {
             u2.addRole(userRole);
             admin.addRole(adminRole);
             u1.addDog(d1);
-            u1.addDog(d2);
+            u2.addDog(d2);
             s1.addBreed(b1);
             s2.addBreed(b2);
             em.persist(userRole);
@@ -151,7 +155,7 @@ public class UserResourceTest {
                 .then()
                 .extract().path("token");
 
-        System.out.println(securityToken);
+        
         //System.out.println("TOKEN ---> " + securityToken);
     }
 
@@ -177,7 +181,7 @@ public class UserResourceTest {
     @Test
     public void testAddADogToAUser() throws Exception {
         login("Phillip", "Masterrx8");
-        System.out.println(securityToken);
+        
         given()
                 .contentType("application/json")
                 .body(new CreateNewDogDTO("Phillip", "Ole", "05/02/2020", "Meget sulten", "Golden"))
@@ -187,5 +191,32 @@ public class UserResourceTest {
                 .statusCode(HttpStatus.OK_200.getStatusCode());
 
     }
+    
+    @Order(4)
+    @Test
+    public void testGetAllDogsByUser() throws Exception {
+        List<DogDTO> dogsDTO;
+
+        dogsDTO = given()
+                .contentType("application/json")
+                .when()
+                .get("/info/alldogs/" + u1.getUserName())
+                .then()
+                .extract().body().jsonPath().getList("dogs", DogDTO.class);
+
+      DogDTO dogDTO = new DogDTO(d1);
+
+        assertThat(dogsDTO, containsInAnyOrder(dogDTO));
+        
+        
+
+    }
+    
+    
+    
+    
+    
+    
+    
 
 }

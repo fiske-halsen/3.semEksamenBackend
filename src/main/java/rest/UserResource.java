@@ -3,6 +3,7 @@ package rest;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import dto.CreateNewDogDTO;
+import dto.DogsDTO;
 import entities.User;
 import errorhandling.UserNotFoundException;
 import facades.UserFacade;
@@ -104,13 +105,17 @@ public class UserResource {
     @RolesAllowed("user")
     @POST
     @Produces({MediaType.APPLICATION_JSON})
-    public String addDogToUser(String dogDTO) throws InterruptedException, ExecutionException, TimeoutException, IOException, UserNotFoundException {
+    public String addDogToUser(String dogDTO) throws UserNotFoundException {
         CreateNewDogDTO dog = GSON.fromJson(dogDTO, CreateNewDogDTO.class);
         CreateNewDogDTO createdDog = FACADE.addDogToAUser(dog);
         return GSON.toJson(createdDog);
     }
     
-    
-    
-    
+    @Path("alldogs/{username}")
+    @GET
+    @Produces({MediaType.APPLICATION_JSON})
+    public String getAllDogsByUser(@PathParam("username") String userName) throws UserNotFoundException {
+       DogsDTO dogs = FACADE.getAllDogsForUser(userName);
+        return GSON.toJson(dogs);
+    }
 }
