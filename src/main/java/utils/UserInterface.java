@@ -5,7 +5,6 @@ import dto.CreateNewDogDTO;
 import dto.DogDTO;
 import dto.DogsDTO;
 import dto.SearchDTO;
-import dto.UsersDTO;
 import errorhandling.DogNotFoundException;
 import errorhandling.UserNotFoundException;
 import security.errorhandling.AuthenticationException;

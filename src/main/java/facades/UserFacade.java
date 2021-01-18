@@ -4,7 +4,6 @@ import dto.CreateNewDogDTO;
 import dto.DogDTO;
 import dto.DogsDTO;
 import dto.SearchDTO;
-import dto.UsersDTO;
 import entities.Breed;
 import entities.Dog;
 import entities.Searches;
